@@ -1,0 +1,1002 @@
+<html>
+  <style>
+   body {
+		 background: #5f200e url('slimste_tervuurse.jpeg') no-repeat fixed top center;
+		 margin: 160px auto 20px;
+		 padding: 0px;
+		 font-family: Arial;
+		 font-size: 14px;
+		 font-weight: normal;
+		 text-decoration: none;
+		 color: white;
+		 width: 900px;
+	 }
+   #sidebar {
+     position: fixed; top: 0; right: 0;
+     font-size: 32px;
+   }
+   #sidebar h4{
+     font-weight: bold;
+   }
+   .final .question {
+     font-size: 48px;
+     text-align: center;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+   }
+   .final .answers {
+   }
+   .final .answers ul {
+     list-style-type: none;
+   }
+   .final .answers li {
+     display:inline;
+     margin-left: 50px;
+     font-size: 72px;
+     text-shadow: 0 0 35px rgba(0,0,0,1.0);
+   }
+   .blurred {
+     color: transparent;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+   }
+   .question {
+     display: none;
+   }
+   .question.active {
+     display: block;
+   }
+   .collective .round{
+     font-size: 48px;
+     text-align: center;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+     display: none;
+   }
+   .collective .active {
+     display: block;
+   }
+   .collective .answers {
+   }
+   .collective .answers ul {
+   }
+   .collective .answers li {
+     font-size: 48px;
+     text-shadow: 0 0 35px rgba(0,0,0,1.0);
+   }
+   .photo .round{
+     font-size: 48px;
+     text-align: center;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+     display: none;
+   }
+   .photo .active {
+     display: block;
+   }
+   .photo img {
+     max-height: 80%;
+     max-width: 100%;
+   }
+   .puzzel .round{
+     font-size: 48px;
+     text-align: center;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+     display: none;
+   }
+   .puzzleTable {
+     width: 100%;
+     font-size: 32px;
+     text-align: center;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+   }
+   .puzzleTable td {
+     border: 5px solid white;
+   }
+   .puzzel .active {
+     display: block;
+   }
+   .puzzel .answers {
+   }
+   .puzzel .answers ul {
+   }
+   .puzzel .answers li {
+     font-size: 48px;
+     text-shadow: 0 0 32px rgba(0,0,0,1.0);
+   }
+   .open-door .round{
+     font-size: 48px;
+     text-align: center;
+     text-shadow: 0 0 25px rgba(0,0,0,1.0);
+     display: none;
+   }
+   .open-door .active {
+     display: block;
+   }
+   .open-door .answers {
+   }
+   .open-door .answers ul {
+   }
+   .open-door .answers li {
+     font-size: 48px;
+     text-shadow: 0 0 32px rgba(0,0,0,1.0);
+   }
+  </style>
+  <script src="jquery-2.1.3.min.js"></script>
+  <script src="underscore-min.js"></script>
+  <script>
+   if (!window.teams) {
+     window.teams = {
+       one: {name: "Team 1", _id: "teamone", score: 215, active: false},
+       two: {name: "Team 2", _id: "teamtwo", score: 247, active: false},
+       three: {name: "Team 3", _id: "teamthree", score: 217, active: false}
+     }
+   }
+   var clock, clockTeam;
+   var finalKeydown = function(e) {
+     if (!(e.keyCode == 37 || e.keyCode == 39)) { return; }
+     $question = $(".final .active").first();
+     if ($question.length < 1) {
+       $question = $(".final .question").first();
+       $question.show();
+       return;
+     }
+     $question.toggleClass("active");
+     if(e.keyCode == 37) { // left
+       $question.prev(".question").toggleClass("active");
+       $question.prev(".question").show();
+     }
+     if(e.keyCode == 39) { // right
+       $question.next(".question").toggleClass("active");
+       $question.next(".question").show();
+     }
+   }
+   var collectiveKeydown = function(e) {
+     if (!(e.keyCode == 37 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 38)) { return; }
+     $round = $(".collective .active");
+
+     if (e.keyCode == 37 || e.keyCode == 39) {
+       if ($round.length < 1) { $round = $(".round"); }
+       $round.toggleClass("active");
+       if(e.keyCode == 37) { // left
+         $round.prev(".round").toggleClass("active");
+       }
+       if(e.keyCode == 39) { // right
+         $round.next(".round").toggleClass("active");
+       }
+     }
+
+     if (e.keyCode == 40 || e.keyCode == 38) {
+       // up
+       if (e.keyCode == 38) {
+         $round.find(".movie").show();
+         $round.find(".answers").hide();
+       }
+
+       // down
+       if (e.keyCode == 40) {
+         $round.find(".movie").hide();
+         $round.find(".answers").show();
+       }
+     }
+
+   }
+   var openDoorKeydown = function(e) {
+     if (!(e.keyCode == 37 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 38)) { return; }
+     $round = $(".open-door .active");
+
+     if (e.keyCode == 37 || e.keyCode == 39) {
+       if ($round.length < 1) { $round = $(".round"); }
+       $round.toggleClass("active");
+       if(e.keyCode == 37) { // left
+         $round.prev(".round").toggleClass("active");
+       }
+       if(e.keyCode == 39) { // right
+         $round.next(".round").toggleClass("active");
+       }
+     }
+
+     if (e.keyCode == 40 || e.keyCode == 38) {
+       // up
+       if (e.keyCode == 38) {
+         $round.find(".movie").show();
+         $round.find(".answers").hide();
+       }
+
+       // down
+       if (e.keyCode == 40) {
+         $round.find(".movie").hide();
+         $round.find(".answers").show();
+       }
+     }
+
+   }
+   var photoKeydown = function(e) {
+     if (!(e.keyCode == 37 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 67)) { return; }
+     $round = $(".photo .active");
+     if (e.keyCode == 67) {
+       addScoreForCurrentTeam(10);
+     }
+     if (e.keyCode == 37 || e.keyCode == 39) {
+       $round.children("img").hide();
+
+
+       if ($round.length < 1) { $round = $(".round"); }
+       $round.toggleClass("active");
+       if(e.keyCode == 37) { // left
+         console.log("previous");
+         $round.prev(".round").toggleClass("active");
+       }
+       if(e.keyCode == 39) { // right
+         console.log("next");
+         $round.next(".round").toggleClass("active");
+         $round.next(".round").find(".active_pic").show();
+       }
+     }
+
+     if (e.keyCode == 40 || e.keyCode == 38) {
+       $pic = $round.find(".active_pic").first();
+       $pic.toggleClass("active_pic");
+       $pic.hide();
+       if ($pic.length < 1) {
+         $pic = $round.find("img").first();
+         $pic.toggleClass("active_pic");
+         $pic.show();
+         return;
+       }
+
+       // up
+       if (e.keyCode == 38) {
+         $pic.prev("img").toggleClass("active_pic");
+         $pic.prev("img").show();
+       }
+
+       // down
+       if (e.keyCode == 40) {
+         $pic.next("img").toggleClass("active_pic");
+         $pic.next("img").show();
+       }
+     }
+
+   }
+   var puzzleKeydown = function(e) {
+     if (!(e.keyCode == 37 || e.keyCode == 39)) { return; }
+     $round = $(".puzzel .active");
+     if (e.keyCode == 37 || e.keyCode == 39) {
+       if ($round.length < 1) { $round = $(".round"); }
+       $round.toggleClass("active");
+       if(e.keyCode == 37) { // left
+         console.log("previous");
+         $round.prev(".round").toggleClass("active");
+       }
+       if(e.keyCode == 39) { // right
+         console.log("next");
+         $round.next(".round").toggleClass("active");
+       }
+     }
+   }
+   var teamByIndex = function(i) {
+     if (i == 1) { return window.teams.one; }
+     if (i == 2) { return window.teams.two; }
+     if (i == 3) { return window.teams.three; }
+   }
+   var currentTeam = function() {
+     return _.findWhere(window.teams, {active: true});
+   }
+   var activateTeam = function(i) {
+     window.teams.one.active = false;
+     window.teams.two.active = false;
+     window.teams.three.active = false;
+     $("div#sidebar h4").css({color: "white"});
+     if (i == 1) window.teams.one.active = true;
+     if (i == 2) window.teams.two.active = true;
+     if (i == 3) window.teams.three.active = true;
+     if (currentTeam()) {
+       $("#" + currentTeam()._id + " h4").css({color: "yellow"});
+     }
+   }
+   var theClock = function() {
+     clockTeam.score -= 1;
+     refreshTeams();
+   }
+   var startClock = function() {
+     if (clock) { window.clearInterval(clock); }
+     clock = null;
+     clockTeam = currentTeam();
+     clock = setInterval(theClock,1000);
+   }
+   var stopClock = function(i) {
+     clockTeam = null
+     window.clearInterval(clock);
+   }
+   var addScoreForCurrentTeam = function(scoreToAdd) {
+     if (!currentTeam()) return;
+     currentTeam().score += scoreToAdd;
+   }
+   var refreshTeams = function() {
+     _.each(window.teams, function(team) {
+       $("#" + team._id + " h4").text(team.name);
+       $("#" + team._id + " span").text(team.score);
+     });
+   }
+   $(document).on("ready", function() {
+     refreshTeams();
+     $(".final, .collective, .photo, .puzzel, .open-door").hide();
+     $(".photo img").hide();
+     $(".current").show();
+     $(".final .answers").on("click", "li", function(e) {
+       $li = $(e.target)
+       $li.toggleClass("blurred");
+       addScoreForCurrentTeam(-20);
+       if ($li.parents("div.answers").find(".blurred").length < 1) {
+       }
+     });
+     $(".puzzel .answers").on("click", "li", function(e) {
+       $li = $(e.target)
+       klazz = _.reject($li.attr("class").split(' '), function(k) {
+         return k == "blurred";
+       });;
+       $li.toggleClass("blurred");
+       addScoreForCurrentTeam(30);
+       $li.parents("div.round").find("." + klazz).css({color: "yellow"});
+     });
+     $(".open-door .answers").on("click", "li", function(e) {
+       $li = $(e.target)
+       $li.toggleClass("blurred");
+       addScoreForCurrentTeam(20);
+     });
+     $(".collective .answers").on("click", "li", function(e) {
+       $li = $(e.target)
+       $li.toggleClass("blurred");
+       if ($li.parents("div.answers").find(".blurred").length == 4) {
+         addScoreForCurrentTeam(10);
+       }
+       if ($li.parents("div.answers").find(".blurred").length == 3) {
+         addScoreForCurrentTeam(20);
+       }
+       if ($li.parents("div.answers").find(".blurred").length == 2) {
+         addScoreForCurrentTeam(30);
+       }
+       if ($li.parents("div.answers").find(".blurred").length == 1) {
+         addScoreForCurrentTeam(40);
+       }
+       if ($li.parents("div.answers").find(".blurred").length == 0) {
+         addScoreForCurrentTeam(50);
+       }
+       refreshTeams();
+     });
+     $(document).on("keydown", function (e) {
+       if (e.keyCode == 68) { stopClock();}
+       if (e.keyCode == 83) { startClock();}
+       if (e.keyCode == 192){ activateTeam(0);}
+       if (e.keyCode == 49) { activateTeam(1);}
+       if (e.keyCode == 50) { activateTeam(2);}
+       if (e.keyCode == 51) { activateTeam(3);}
+       if ($("div.open-door.current").length > 0) { openDoorKeydown(e); }
+       if ($("div.puzzel.current").length > 0) { puzzleKeydown(e); }
+       if ($("div.photo.current").length > 0) { photoKeydown(e); }
+       if ($("div.final.current").length > 0) { finalKeydown(e); }
+       if ($("div.collective.current").length > 0) { collectiveKeydown(e); }
+       e.preventDefault(); // prevent the default action (scroll / move caret)
+     });
+     $(document).on("change", "#picker", function(e) {
+       $(".final, .collective, .photo, .puzzel, .open-door").hide();
+       $(".current").toggleClass("current");
+       $("." + $(e.target).val()).toggleClass("current");
+       $("." + $(e.target).val()).show();
+     });
+   });
+  </script>
+  <body>
+    <div id="sidebar">
+      <div id="teamone">
+        <h4></h4>
+        <p><span></span></p>
+      </div>
+
+      <div id="teamtwo">
+        <h4></h4>
+        <p><span></span></p>
+      </div>
+
+      <div id="teamthree">
+        <h4></h4>
+        <p><span></span></p>
+      </div>
+      <select id="picker">
+        <option value="open-door">Open Deur</option>
+        <option value="puzzel">Puzzel</option>
+        <option value="photo">Galerij</option>
+        <option value="collective">Collectieve Geheugen</option>
+        <option value="final">Finale</option>
+      </select>
+    </div>
+    <div id="content">
+      <div class="open-door current">
+        <div class="round active">
+          <div>
+            <h2>Open Deur</h2>
+          </div>
+        </div>
+        <div class="round">
+          <div class="movie">
+            <iframe width="420" height="315" src="http://www.youtube.com/embed/K7SvpyGq4V8?showinfo=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="answers" style="display: none;">
+            <ul>
+              <li class="blurred">Albrecht Discount</li>
+              <li class="blurred">Duits</li>
+              <li class="blurred">discountsupermarktketen</li>
+              <li class="blurred">Broers</li>
+            </ul>
+          </div>
+        </div>
+        <div class="round">
+          <div class="movie">
+            <iframe width="420" height="315" src="http://www.youtube.com/embed/T6QOxo4g2rw?showinfo=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="answers" style="display: none;">
+            <ul>
+              <li class="blurred">007</li>
+              <li class="blurred">Ian Fleming</li>
+              <li class="blurred">Sean Connery</li>
+              <li class="blurred">Spion</li>
+            </ul>
+          </div>
+        </div>
+        <div class="round">
+          <div class="movie">
+            <iframe width="420" height="315" src="http://www.youtube.com/embed/y_aAPPUXGUg?showinfo=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="answers" style="display: none;">
+            <ul>
+              <li class="blurred">Whiskas</li>
+              <li class="blurred">Friskies</li>
+              <li class="blurred">Royal Canin</li>
+              <li class="blurred">Purina</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="puzzel">
+        <div class="round active">
+          <div>
+            <h2>Puzzel</h2>
+          </div>
+        </div>
+        <div class="round">
+          <table class="puzzleTable">
+            <tr>
+              <td class="a">Adidas</td>
+              <td class="b">Huis van hout</td>
+              <td class="b">Huis van stro</td>
+              <td class="c">Nic Balthazar</td>
+            </tr>
+            <tr>
+              <td class="c">Mario Verstraete</td>
+              <td class="c">Euthanasie</td>
+              <td class="a">Dochter van Paul</td>
+              <td class="b">Huis van Steen</td>
+            </tr>
+            <tr>
+              <td class="a">Modeontwerpster</td>
+              <td class="c">Belgische film</td>
+              <td class="b">Sprookje</td>
+              <td class="a">Dochter van Linda</td>
+            </tr>
+          </table>
+          <div class="answers">
+            <ul>
+              <li class="blurred a">Stella Mccartney</li>
+              <li class="blurred b">3 Biggetjes</li>
+              <li class="blurred c">Tot altijd</li>
+            </ul>
+          </div>
+        </div>
+        <div class="round">
+          <table class="puzzleTable">
+            <tr>
+              <td class="a">Zout</td>
+              <td class="b">Vermenigvuldigen</td>
+              <td class="b">Delen</td>
+              <td class="a">Aardappel</td>
+            </tr>
+            <tr>
+              <td class="c">Orkaan</td>
+              <td class="a">Paprika</td>
+              <td class="b">Aftrekken</td>
+              <td class="c">Mardi Grass</td>
+            </tr>
+            <tr>
+              <td class="a">Computer</td>
+              <td class="c">Lousisiana</td>
+              <td class="b">Optellen</td>
+              <td class="c">Stad</td>
+            </tr>
+          </table>
+          <div class="answers">
+            <ul>
+              <li class="blurred a">Chips</li>
+              <li class="blurred b">Rekenen</li>
+              <li class="blurred c">New Orleans</li>
+            </ul>
+          </div>
+        </div>
+        <div class="round">
+          <table class="puzzleTable">
+            <tr>
+              <td class="a">Actrice</td>
+              <td class="b">Mexicaans</td>
+              <td class="c">Ketchup</td>
+              <td class="b">Sunrise</td>
+            </tr>
+            <tr>
+              <td class="b">Citroen</td>
+              <td class="c">Mosterd</td>
+              <td class="a">Rosselini</td>
+              <td class="b">Zout</td>
+            </tr>
+            <tr>
+              <td class="a">Zweden</td>
+              <td class="c">Worst</td>
+              <td class="c">Zuurkool</td>
+              <td class="a">Casblanca</td>
+            </tr>
+          </table>
+          <div class="answers">
+            <ul>
+              <li class="blurred a">Ingrid Bergman</li>
+              <li class="blurred b">Tequila</li>
+              <li class="blurred c">Hotdog</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="photo">
+        <div class="round active">
+          <div>
+            <h2>Galerij</h2>
+          </div>
+        </div>
+        <div class="round">
+          <img src="fotoronde_1/1185_00_dl_creme.jpg" class="active_pic" />
+          <img src="fotoronde_1/93crzmuwou9r.jpg" />
+          <img src="fotoronde_1/KSVERH.1.jpg" />
+          <img src="fotoronde_1/SubdermalImplant2011.jpg" />
+          <img src="fotoronde_1/condoom-11433834.jpg" />
+          <img src="fotoronde_1/female_condom_hand.JPG" />
+          <img src="fotoronde_1/o-MORNING-AFTER-PILL-facebook.jpg" />
+          <img src="fotoronde_1/pil.jpg" />
+          <img src="fotoronde_1/semina.jpg" />
+          <img src="fotoronde_1/vrouwen-weten-te-weinig-over-anticonceptie.jpg" />
+        </div>
+        <div class="round">
+          <img src="fotoronde_2/0_kerstmis.JPG" />
+          <img src="fotoronde_2/2811 offerfeest ANP-6780244.jpg" />
+          <img src="fotoronde_2/Giotto_-_Scrovegni_-_-38-_-_Ascension.jpg" />
+          <img src="fotoronde_2/IMG_3252.JPG" />
+          <img src="fotoronde_2/Maria_Hemelvaart_Wouter_Pietersz_II_Crabeth.jpg" />
+          <img src="fotoronde_2/as_woensdag.jpg" />
+          <img src="fotoronde_2/intropic_1216816228.jpg" />
+          <img src="fotoronde_2/joods_nieuwjaar.jpg" />
+          <img src="fotoronde_2/opengraf01.jpg" />
+          <img src="fotoronde_2/pinksteren.jpg" />
+        </div>
+        <div class="round">
+          <img src="fotoronde_3/2633186-9174670035-Perro.jpg" />
+          <img src="fotoronde_3/Historical-Figures-As-Youve-Never-Seen-Them-Before-1.jpg" />
+          <img src="fotoronde_3/Historical-Figures-As-Youve-Never-Seen-Them-Before-5.jpg" />
+          <img src="fotoronde_3/must-see-black-and-white-historic-moments-1.jpg" />
+          <img src="fotoronde_3/must-see-black-and-white-historic-moments-18.jpg" />
+          <img src="fotoronde_3/must-see-black-and-white-historic-moments-28.jpg" />
+          <img src="fotoronde_3/must-see-black-and-white-historic-moments-38.jpg" />
+          <img src="fotoronde_3/must-see-black-and-white-historic-moments-40.jpg" />
+          <img src="fotoronde_3/statue.jpg" />
+          <img src="fotoronde_3/must-see-black-and-white-historic-moments-13.jpg" />
+        </div>
+      </div>
+      <div class="collective">
+        <div class="round active">
+          <div>
+            <h2>Collectief Geheugen</h2>
+          </div>
+        </div>
+        <div class="round">
+          <div class="movie">
+            <iframe width="420" height="315" src="http://www.youtube.com/embed/KeaehxEdpgo?showinfo=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="answers" style="display: none;">
+            <ul>
+              <li class="blurred">Picard</li>
+              <li class="blurred">Star Trek</li>
+              <li class="blurred">Let it Snow</li>
+              <li class="blurred">Patrick Stewart.</li>
+              <li class="blurred">The Next Generation</li>
+            </ul>
+          </div>
+        </div>
+ <div class="round">
+          <div class="movie">
+            <iframe width="420" height="315" src="http://www.youtube.com/embed/hFjwbKMlmF4?showinfo=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="answers" style="display: none;">
+            <ul>
+              <li class="blurred">Will Smith</li>
+              <li class="blurred">The Graham Norton Show</li>
+              <li class="blurred">Gary Barlow</li>
+              <li class="blurred">Tom Jones</li>
+              <li class="blurred">1990</li>
+            </ul>
+          </div>
+        </div>
+ <div class="round">
+          <div class="movie">
+            <iframe width="420" height="315" src="http://www.youtube.com/embed/x2WK_eWihdU?showinfo=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div class="answers" style="display: none;">
+            <ul>
+              <li class="blurred">Oscar</li>
+              <li class="blurred">Quentin Tarantino</li>
+              <li class="blurred">John Travolta</li>
+              <li class="blurred">Samuel L. Hackson</li>
+              <li class="blurred">1994</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="final">
+        <div class="question active">
+          <div>
+            <h2>Finale</h2>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over John Grisham?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Schrijver</li>
+              <li class="blurred">Thrillers</li>
+              <li class="blurred">Amerikaan</li>
+              <li class="blurred">Verfilmd</li>
+              <li class="blurred">Rechtbank</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Hoe gaat het sprookje van Roodkapje?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Grootmoeder</li>
+              <li class="blurred">Wolf</li>
+              <li class="blurred">Opgegeten</li>
+              <li class="blurred">Jager</li>
+              <li class="blurred">Mandje</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over Mekka?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Saudie-Arabie</li>
+              <li class="blurred">bedevaartsood</li>
+              <li class="blurred">Ka'ba</li>
+              <li class="blurred">Mohammed</li>
+              <li class="blurred">Stad</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wie is Bart Kaell?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Zanger</li>
+              <li class="blurred">Soundmixshow</li>
+              <li class="blurred">Presentator</li>
+              <li class="blurred">De Marie-Louise</li>
+              <li class="blurred">Oudenaarde</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over de politicus Jose Happaert?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Voeren</li>
+              <li class="blurred">PS</li>
+              <li class="blurred">Retour a Liege</li>
+              <li class="blurred">Waals</li>
+              <li class="blurred">Jean Marie</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat zegt je de naam Tsjechov?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Anton</li>
+              <li class="blurred">Rus</li>
+              <li class="blurred">Toneel</li>
+              <li class="blurred">Schrijver</li>
+              <li class="blurred">De Meuw</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Noem de 5 grootste universiteiten van Belgi&euml; naar aantal studenten</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">UA</li>
+              <li class="blurred">ULB</li>
+              <li class="blurred">UGent</li>
+              <li class="blurred">KULeuven</li>
+              <li class="blurred">UCL</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over de enige echte Bruce Springsteen?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">E street band</li>
+              <li class="blurred">Amerikaan</li>
+              <li class="blurred">Zanger</li>
+              <li class="blurred">Born in the USA</li>
+              <li class="blurred">The boss</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Zo vader zo dochter wat weet je over Sofia Coppola?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Francis Ford</li>
+              <li class="blurred">Amerikaanse</li>
+              <li class="blurred">Regisseuse</li>
+              <li class="blurred">Lost in Translation</li>
+              <li class="blurred">Oscar</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je voer de Koreaanse oorlog?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">jaren '50</li>
+              <li class="blurred">Noord-Zuid</li>
+              <li class="blurred">Verenigde Staten</li>
+              <li class="blurred">Communisten</li>
+              <li class="blurred">Duurt nog voort</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over Elke Vanelderen?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Regi</li>
+              <li class="blurred">Presentatrice</li>
+              <li class="blurred">Vitaya</li>
+              <li class="blurred">Blind Date</li>
+              <li class="blurred">Blond</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Who's Jack Kerouac?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Amerikaans</li>
+              <li class="blurred">schrijver</li>
+              <li class="blurred">on the road</li>
+              <li class="blurred">Beat Generation</li>
+              <li class="blurred">Lustte een glaasje</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over Jan Hoet?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Kunst</li>
+              <li class="blurred">SMAK</li>
+              <li class="blurred">Herford</li>
+              <li class="blurred">Dood</li>
+              <li class="blurred">Ridder</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over Anton Korbijn?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Nederlander</li>
+              <li class="blurred">Fotograaf</li>
+              <li class="blurred">Regisseur</li>
+              <li class="blurred">The American</li>
+              <li class="blurred">Oor</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wie is Pol Van Den Driessche?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">CD&V</li>
+              <li class="blurred">Senator</li>
+              <li class="blurred">VTM</li>
+              <li class="blurred">Cercle Brugge</li>
+              <li class="blurred">Het Nieuwsblad</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Hij wil kind blijven en er is een Disneyfilm over gemaakt, wat weet je nog meer over Peter Pan</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">JM Barrie</li>
+              <li class="blurred">Vliegen</li>
+              <li class="blurred">Neverland</li>
+              <li class="blurred">Kapitein Haak</li>
+              <li class="blurred">Tinkelbell</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Operatie overlord of de bevrijding van Europa begon met D-Day, wat weet je over D- Day?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Normandië</li>
+              <li class="blurred">Tweede Wereldoorlog</li>
+              <li class="blurred">beaches/stranden</li>
+              <li class="blurred">Eisenhower</li>
+              <li class="blurred">1944</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Jarenlang konden we op VTM genieten van het Rad Van Fortuin, maar weten we ook nog naast een zekere karla welke dames letterbordjesomdraaisters waren?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Zoe van Gestel</li>
+              <li class="blurred">Be de meyer</li>
+              <li class="blurred">Deborah OStrega</li>
+              <li class="blurred">Els van Dijck</li>
+              <li class="blurred">Aurore Dobbelaere</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat zegt je Oasis?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Gallagher</li>
+              <li class="blurred">Brits</li>
+              <li class="blurred">Rockgroep</li>
+              <li class="blurred">Wonderdall</li>
+              <li class="blurred">Gesplit</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over een van de eerste grote romans uit de wereldliteratuur, Don Quichote?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Cervantes</li>
+              <li class="blurred">Sancho Panza</li>
+              <li class="blurred">Windmolens</li>
+              <li class="blurred">De la mancha</li>
+              <li class="blurred">Dulcinea</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over graaf jacques Rogge?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Voorzitter</li>
+              <li class="blurred">IOC</li>
+              <li class="blurred">Arts</li>
+              <li class="blurred">Zeiler</li>
+              <li class="blurred">Anti Doping</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat zijn de grootste steden van Groot-Britannie?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Londen</li>
+              <li class="blurred">Glasgow</li>
+              <li class="blurred">leeds</li>
+              <li class="blurred">Sheffield</li>
+              <li class="blurred">bermingham</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je over Sarah Jessica Parker?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Sex and the city</li>
+              <li class="blurred">Acrtice</li>
+              <li class="blurred">Amerikaanse</li>
+              <li class="blurred">Carrie Bradshaw</li>
+              <li class="blurred">Matthew Broderick</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Wat weet je nog over Salvadar Allende?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Isabel</li>
+              <li class="blurred">Chileen</li>
+              <li class="blurred">President</li>
+              <li class="blurred">Staatsgreep</li>
+              <li class="blurred">Pinochet</li>
+            </ul>
+          </div>
+        </div>
+        <div class="question">
+          <div>
+            <h2>Meest voorkomende gemengde huwelijken?</h2>
+          </div>
+          <div class="answers">
+            <ul>
+              <li class="blurred">Frankrijk</li>
+              <li class="blurred">Marokko</li>
+              <li class="blurred">Nederland</li>
+              <li class="blurred">Turkije</li>
+              <li class="blurred">Italie</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <html>
