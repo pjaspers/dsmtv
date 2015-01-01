@@ -16,7 +16,7 @@ De finale is een beetje tricky aangezien je eerst de klok moet starten voor het 
 
 Aangezien alles gewoon in 1 object wordt bijgehouden:
 
-```
+#+BEGIN_SRC js2-mode
 window.teams
 
 Object
@@ -29,7 +29,7 @@ __proto__: Object
 three: Object
 two: Object
 __proto__: Object
-```
+#+END_SRC
 
 Kan je ten alle tijden gewoon een console opendoen en de score aanpassen.
 
