@@ -1,0 +1,38 @@
+* De Slimste Mens Ter Vuursesteenweg
+
+** Wat?
+
+Een speelbaar (of toch zo goed als) De Slimste Mens scorebord systeem.
+
+** Hoe?
+
+Met 1, 2 en 3 kan je wisselen tussen welk team actief is, als een team actief is kan je zijn klok starten door op de 's' te duwen, de klok stoppen (altijd gepaard met dramatisch gesproken "Stop de klok!") kan dan weer door op 'd' te duwen.
+
+Je kan een geblurrede vraag als correct antwoorden door er op te klikken, het team dat op dat moment actief is zal de juiste punten bijkrijgen.
+
+Met de select box rechts kan je van ronde wisselen, één keer in een ronde kan je meestal met het linker -en rechterpijltje wisselen tussen de vragen per team. (Dus bijvoorbeeld puzzel a, puzzel b en puzzel c), met het omhoog/omlaagpijltje kan je dan weer wisselen tussen de content van elke ronde.
+
+De finale is een beetje tricky aangezien je eerst de klok moet starten voor het ene team en dan het andere team actief moet maken omdat elk antwoord van het ene team punten aftrekt van het andere team.
+
+Aangezien alles gewoon in 1 object wordt bijgehouden:
+
+```
+window.teams
+
+Object
+one: Object
+_id: "teamone"
+active: false
+name: "Team 1"
+score: 215
+__proto__: Object
+three: Object
+two: Object
+__proto__: Object
+```
+
+Kan je ten alle tijden gewoon een console opendoen en de score aanpassen.
+
+** Waarom?
+
+We zochten iets om te spelen met nieuwjaar.
