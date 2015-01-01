@@ -4,6 +4,8 @@
 
 Een speelbaar (of toch zo goed als) De Slimste Mens scorebord systeem.
 
+Demo: http://pjaspers.github.io/dsmtv/
+
 ** Hoe?
 
 Met 1, 2 en 3 kan je wisselen tussen welk team actief is, als een team actief is kan je zijn klok starten door op de 's' te duwen, de klok stoppen (altijd gepaard met dramatisch gesproken "Stop de klok!") kan dan weer door op 'd' te duwen.
